@@ -1,0 +1,33 @@
+{
+  "name": "korpiq-elm-ui-experiment-1",
+  "version": "0.0.1",
+  "description": "Experimenting to build single-page responsive application with elm.",
+  "main": "index.html",
+  "scripts": {
+    "build": "./build.sh",
+    "test": "./node_modules/.bin/elm-test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/korpiq/korpiq-elm-ui-experiment-1.git"
+  },
+  "keywords": [
+    "elm",
+    "video",
+    "multimedia",
+    "editor"
+  ],
+  "author": "Kalle Hallivuori",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/korpiq/korpiq-elm-ui-experiment-1/issues"
+  },
+  "homepage": "https://github.com/korpiq/korpiq-elm-ui-experiment-1#readme",
+  "devDependencies": {
+    "elm": "^0.19.0-bugfix6",
+    "elm-live": "^3.4.0",
+    "elm-test": "^0.19.0-rev6",
+    "uglify-js": "^3.5.10",
+    "uglifyjs": "^2.4.11"
+  }
+}
