@@ -8,6 +8,7 @@ import Bootstrap.Grid as Grid
 import Bootstrap.Navbar as Navbar
 import Json.Encode
 import Json.Decode
+import Debug exposing (log)
 
 main : Program Flags Model Msg
 main =
@@ -41,9 +42,33 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         BodyEvent eventJson ->
-            (model, Cmd.none)
+            updateOnBodyEvent model eventJson
         NavbarMsg state ->
             ( { model | navbarState = state }, Cmd.none )
+
+updateOnBodyEvent : Model -> Json.Encode.Value -> (Model, Cmd Msg)
+updateOnBodyEvent model eventJson =
+    let
+        eventType = getJsonFieldString "type" eventJson
+    in
+        case eventType of
+            "keyup" -> updateOnBodyKeyEvent model eventJson
+            _ -> (model, Cmd.none)
+
+updateOnBodyKeyEvent : Model -> Json.Encode.Value -> (Model, Cmd Msg)
+updateOnBodyKeyEvent model eventJson =
+    let
+        keyName = getJsonFieldString "key" eventJson
+    in
+        case keyName of
+            "Escape" -> initNavbarState
+            _ -> (model, Cmd.none)
+
+getJsonFieldString : String -> Json.Encode.Value -> String
+getJsonFieldString name eventJson =
+    case Json.Decode.decodeValue (Json.Decode.field name Json.Decode.string) eventJson of
+        Ok fieldValue -> fieldValue
+        Err error -> Json.Decode.errorToString error
 
 view : Model -> Html Msg
 view model =
@@ -102,6 +127,9 @@ subscriptions model =
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
+    initNavbarState
+
+initNavbarState =
     let
         (navbarState, navbarCmd)
             = Navbar.initialState NavbarMsg
