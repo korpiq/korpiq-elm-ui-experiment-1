@@ -13,15 +13,6 @@ import Json.Encode exposing (..)
 
 import Main
 
-dropdownIsOpen : String -> Result String Main.Msg -> Bool
-dropdownIsOpen name resultToCheck =
-    case resultToCheck of
-        Ok msg -> case msg of
-            Main.NavbarMsg state -> Dict.member name state.dropdowns
-            --> This is not a record, so it has no fields to access! This `state` value is a: Bootstrap.Navbar.State
-            _ -> False
-        _ -> False
-
 suite : Test
 suite =
     describe "Learning to write a test"
@@ -39,22 +30,30 @@ suite =
                 \() ->
                     let
                         ( navbarState, _ ) = initialState Main.NavbarMsg
-                        menuOpenState =
-                            Main.view { navbarState = navbarState }
+                        initialModel = { navbarState = navbarState }
+                        initialView = Main.view initialModel
+                        menuOpenMsg =
+                            initialView
                                 |> Query.fromHtml
                                 |> Query.find [Selector.tag "a", Selector.containing [ Selector.text "Dropdown 2" ] ]
                                 |> Event.simulate Event.click
                                 |> Event.toResult
+                        modelAfterMenuOpenUpdate =
+                            case menuOpenMsg of
+                                Ok msg -> Ok (Main.update msg initialModel)
+                                Err reason -> Err reason
+                        viewWithMenuOpen =
+                            case modelAfterMenuOpenUpdate of
+                                Ok (model, _) -> Ok (Main.view model)
+                                Err reason -> Err reason
                     in
-                        menuOpenState
-                            |> dropdownIsOpen "navbar-dropdown-2"
-                            |> Expect.equal True
-                            -- |> Expect.equal (Ok (Main.NavbarMsg { navbarState | dropdowns = Dict.fromList [("navbar-dropdown-2", DropdownStatus.Open)] }))
-                            -- |> Event.expect (Main.NavbarMsg navbarState)
-                        --> Event.expectEvent: Expected the msg NavbarMsg (State { dropdowns = Dict.fromList [], height = Nothing, visibility = Hidden, windowWidth = Nothing }) from the event ("click",<internals>) but could not find the event.
+                        case viewWithMenuOpen of
+                            Ok view ->
+                                view
+                                    |> Query.fromHtml
+                                    |> Query.has [Selector.class "shown", Selector.containing [ Selector.text "Drop 2-1" ] ]
+                            Err reason -> Expect.fail reason
             {--
-                            |> Query.find [ Selector.class "show" ]
-                            |> Query.has [ Selector.text "Drop 2-1" ]
             ,
             test "Close menu with escape key" <|
                 \() ->
