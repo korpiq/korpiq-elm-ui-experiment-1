@@ -2,6 +2,7 @@ module MainTest exposing (..)
 
 import Expect exposing (..)
 import Test exposing (..)
+import Dict
 
 import Test.Html.Query as Query
 import Test.Html.Selector as Selector
@@ -11,6 +12,15 @@ import Bootstrap.Navbar exposing (initialState)
 import Json.Encode exposing (..)
 
 import Main
+
+dropdownIsOpen : String -> Result String Main.Msg -> Bool
+dropdownIsOpen name resultToCheck =
+    case resultToCheck of
+        Ok msg -> case msg of
+            Main.NavbarMsg state -> Dict.member name state.dropdowns
+            --> This is not a record, so it has no fields to access! This `state` value is a: Bootstrap.Navbar.State
+            _ -> False
+        _ -> False
 
 suite : Test
 suite =
@@ -34,9 +44,13 @@ suite =
                                 |> Query.fromHtml
                                 |> Query.find [Selector.tag "a", Selector.containing [ Selector.text "Dropdown 2" ] ]
                                 |> Event.simulate Event.click
+                                |> Event.toResult
                     in
                         menuOpenState
-                            |> Event.expect (Main.NavbarMsg navbarState)
+                            |> dropdownIsOpen "navbar-dropdown-2"
+                            |> Expect.equal True
+                            -- |> Expect.equal (Ok (Main.NavbarMsg { navbarState | dropdowns = Dict.fromList [("navbar-dropdown-2", DropdownStatus.Open)] }))
+                            -- |> Event.expect (Main.NavbarMsg navbarState)
                         --> Event.expectEvent: Expected the msg NavbarMsg (State { dropdowns = Dict.fromList [], height = Nothing, visibility = Hidden, windowWidth = Nothing }) from the event ("click",<internals>) but could not find the event.
             {--
                             |> Query.find [ Selector.class "show" ]
