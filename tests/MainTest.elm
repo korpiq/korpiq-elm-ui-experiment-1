@@ -51,7 +51,11 @@ suite =
                             Ok view ->
                                 view
                                     |> Query.fromHtml
-                                    |> Query.has [Selector.class "shown", Selector.containing [ Selector.text "Drop 2-1" ] ]
+                                    |> Query.has [Selector.all [
+                                            Selector.class "dropdown-menu",
+                                            Selector.class "show",
+                                            Selector.containing [ Selector.text "Drop 2-1" ]
+                                        ]]
                             Err reason -> Expect.fail reason
             {--
             ,
